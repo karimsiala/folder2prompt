@@ -19,7 +19,9 @@ jobs:
       with:
         main: folder2prompt
         exe_name: folder2prompt
+        use-dependencies: false
         release: true
+        artifact: true 
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-mac:
@@ -34,7 +36,9 @@ jobs:
       with:
         main: folder2prompt
         exe_name: folder2prompt
+        use-dependencies: false
         release: true
+        artifact: true 
         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-linux:
@@ -49,5 +53,7 @@ jobs:
       with:
         main: folder2prompt
         exe_name: folder2prompt
+        use-dependencies: false
         release: true
+        artifact: true 
         token: ${{ secrets.GITHUB_TOKEN }}
