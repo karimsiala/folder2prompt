@@ -1,0 +1,53 @@
+name: Build Cross-Platform Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Python Executable Builder Action
+      uses: kentsx/Python2Exe@v1.1.1
+      with:
+        main: folder2prompt
+        exe_name: folder2prompt
+        release: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-mac:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Python Executable Builder Action
+      uses: kentsx/Python2Exe@v1.1.1
+      with:
+        main: folder2prompt
+        exe_name: folder2prompt
+        release: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Python Executable Builder Action
+      uses: kentsx/Python2Exe@v1.1.1
+      with:
+        main: folder2prompt
+        exe_name: folder2prompt
+        release: true
+        token: ${{ secrets.GITHUB_TOKEN }}
