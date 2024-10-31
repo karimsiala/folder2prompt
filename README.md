@@ -1,6 +1,6 @@
 # Local Folder Parser
 
-This is a simple GUI application built with Python and Tkinter that allows you to parse a local repository and display the directory structure and file'scontents into a big prompt for long-context models
+This is a simple GUI application built with Python and Tkinter that allows you to parse a local repository and display the directory structure and file contents into a single prompt for long-context models
 
 ## Features
 
