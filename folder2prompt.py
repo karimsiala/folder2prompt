@@ -7,19 +7,31 @@ from tkinter import ttk
 
 # Default file extensions to look for
 file_extensions = ['.py', '.ipynb', '.html', '.css', '.js', '.jsx', '.ts', '.tsx', '.rst', '.md']
+# Directories to ignore
+ignored_directories = ['node_modules','.next']
+
+def is_ignored(path, ignored_dirs, folder_path):
+    rel_path = os.path.relpath(path, folder_path)
+    for pattern in ignored_dirs:
+        if rel_path.startswith(pattern):
+            return True
+    return False
 
 def parse_local_folder(folder_path):
     tree_str = ""
     file_paths = []
     for root, dirs, files in os.walk(folder_path):
+        # Filter out ignored directories
+        dirs[:] = [d for d in dirs if not is_ignored(os.path.join(root, d), ignored_directories, folder_path)]
+
         indent = root.replace(folder_path, '').count(os.sep)
         sub_indent = '    ' * indent
         tree_str += f"{sub_indent}[{os.path.basename(root)}/]\n"
 
         # Loop over each file in the directory
         for file in files:
-            if not file.startswith('.'):  # Ignore hidden files
-                file_path = os.path.join(root, file)
+            file_path = os.path.join(root, file)
+            if not file.startswith('.') and not is_ignored(file_path, ignored_directories, folder_path):  # Ignore hidden and ignored files
                 tree_str += f"{sub_indent}    {file}\n"
                 if any(file.endswith(ext) for ext in file_extensions):
                     file_paths.append((indent + 1, file_path))
@@ -49,7 +61,7 @@ def retrieve_local_folder_info(folder_path):
     # Read content of selected files
     for indent, path in file_paths:
         file_content = get_file_content(path)
-        formatted_string += '\n' + '    ' * indent + f"{os.path.relpath(path, folder_path)}:\n" + '    ' * indent + '```\n' + file_content + '\n' + '    ' * indent + '```\n'
+        formatted_string += '\n' + '    ' * indent + f"{os.path.relpath(path, folder_path)}:\n" + '    ' * indent + '```\n' + file_content + '\n' + '    ' * indent + '```'
 
     return formatted_string
 
@@ -88,10 +100,23 @@ def remove_selected_extension():
         file_extensions.pop(index)
         extensions_listbox.delete(index)
 
+def add_ignored_directory():
+    new_directory = ignored_entry.get().strip()
+    if new_directory and new_directory not in ignored_directories:
+        ignored_directories.append(new_directory)
+        ignored_listbox.insert(tk.END, new_directory)
+        ignored_entry.delete(0, tk.END)
+
+def remove_selected_ignored():
+    selected_indices = ignored_listbox.curselection()
+    for index in reversed(selected_indices):
+        ignored_directories.pop(index)
+        ignored_listbox.delete(index)
+
 # Set up GUI
 root = tk.Tk()
 root.title("Local Folder Parser")
-root.geometry("700x600")
+root.geometry("700x700")
 root.configure(bg="#f0f0f0")
 
 # Apply a modern theme
@@ -109,6 +134,10 @@ select_button.pack(side=tk.LEFT, padx=5, pady=5)
 # Create Export Text Button
 export_button = ttk.Button(button_frame, text="Export Text", command=export_text)
 export_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+# Create a "Made with Love" Button
+love_button = ttk.Button(button_frame, text="Made with ❤ or Msth", command=lambda: messagebox.showinfo("Made with Love", "This application was made with ❤ or Msth!"))
+love_button.pack(side=tk.RIGHT, padx=5, pady=5)
 
 # Create a frame for the file extensions
 extension_frame = ttk.LabelFrame(root, text="Manage File Extensions", padding="10")
@@ -131,6 +160,28 @@ extensions_listbox = tk.Listbox(extension_frame, height=5, selectmode=tk.MULTIPL
 extensions_listbox.grid(row=1, column=0, columnspan=3, pady=5, padx=5, sticky='ew')
 for ext in file_extensions:
     extensions_listbox.insert(tk.END, ext)
+
+# Create a frame for ignored directories
+ignored_frame = ttk.LabelFrame(root, text="Manage Ignored Directories", padding="10")
+ignored_frame.pack(pady=10, padx=10, fill=tk.X)
+
+# Entry for adding new ignored directory
+ignored_entry = ttk.Entry(ignored_frame)
+ignored_entry.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+
+# Button to add new ignored directory
+add_ignored_button = ttk.Button(ignored_frame, text="Add Directory", command=add_ignored_directory)
+add_ignored_button.grid(row=0, column=1, padx=5, pady=5)
+
+# Button to remove selected ignored directories
+remove_ignored_button = ttk.Button(ignored_frame, text="Remove Selected", command=remove_selected_ignored)
+remove_ignored_button.grid(row=0, column=2, padx=5, pady=5)
+
+# Listbox to display current ignored directories
+ignored_listbox = tk.Listbox(ignored_frame, height=5, selectmode=tk.MULTIPLE)
+ignored_listbox.grid(row=1, column=0, columnspan=3, pady=5, padx=5, sticky='ew')
+for ignored in ignored_directories:
+    ignored_listbox.insert(tk.END, ignored)
 
 # Create ScrolledText widget for displaying output
 output_frame = ttk.Frame(root, padding="10")
